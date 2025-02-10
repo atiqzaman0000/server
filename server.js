@@ -127,7 +127,7 @@ async function postCommentOnBehalfOfAccount(account, postUrl, commentText) {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const commentBoxSelector = "div[contenteditable='true']";
-    await page.waitForSelector(commentBoxSelector, { timeout: 60000 });
+    await page.waitForSelector(commentBoxSelector, { timeout: 100000 });
 
     console.log("Comment box found. Typing comment...");
     await page.click(commentBoxSelector);
