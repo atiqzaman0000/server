@@ -78,16 +78,14 @@ async function postCommentOnBehalfOfAccount(account, postUrl, commentText) {
   try {
     console.log(`Posting comment for ${account.username}`);
 
+    const puppeteer = require("puppeteer");
+
     const browser = await puppeteer.launch({
-  headless: true,
-  args: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage",
-    "--disable-gpu",
-    "--disable-software-rasterizer",
-  ],
-});
+      headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    
 
     const page = await browser.newPage();
     await page.setCookie(...account.fbCookies);
