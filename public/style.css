@@ -1,0 +1,101 @@
+/* General Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Container Styling */
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    width: 90%;
+    max-width: 700px;
+}
+
+/* Headings */
+h2, h3 {
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+/* Form Styling */
+form {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    color: #333;
+}
+
+input {
+    padding: 8px;
+    margin: 5px 0;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Buttons */
+button {
+    margin-top: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.start-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.start-btn:hover {
+    background-color: #218838;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th {
+    background-color: #007BFF; 
+    color: white; 
+    padding: 12px;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+ td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.action-btn {
+    background-color: red;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background-color: darkred;
+}
