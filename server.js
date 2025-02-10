@@ -79,8 +79,9 @@ async function postCommentOnBehalfOfAccount(account, postUrl, commentText) {
 
     const browser = await puppeteer.launch({
       headless: true,
-      args: ["--incognito"],
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+    
     const page = await browser.newPage();
     await page.setCookie(...account.fbCookies);
 
