@@ -75,71 +75,63 @@ async function getLoggedInUser(page) {
 
 async function postCommentOnBehalfOfAccount(account, postUrl, commentText) {
   try {
-    console.log(`Posting comment for ${account.username}`);
+      console.log(`Posting comment for ${account.username}`);
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        timeout: 60000  // ✅ Increase timeout to 60 seconds
     });
     
-    const page = await browser.newPage();
-    await page.setCookie(...account.fbCookies);
+      const page = await browser.newPage();
 
-    // Debug: Verify cookies
-    const cookies = await page.cookies();
-    console.log("Cookies for user", account.username, cookies);
+      console.log("Setting cookies...");
+      await page.setCookie(...account.fbCookies);
 
-    const loggedInUser = await getLoggedInUser(page);
-    console.log(
-      `User logged in: ${loggedInUser} (Expected: ${account.username})`
-    );
+      // ✅ Debug: Verify if cookies are actually applied
+      const cookies = await page.cookies();
+      console.log("Applied Cookies for user", account.username, cookies);
 
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    );
+      if (!cookies.length) {
+          console.error("❌ No cookies were applied! Check your cookie format.");
+          await browser.close();
+          return;
+      }
 
-    console.log("Navigating to:", postUrl);
-    await page.goto(postUrl, { waitUntil: "networkidle2", timeout: 60000 });
+      console.log("Navigating to:", postUrl);
+      await page.goto(postUrl, { waitUntil: "networkidle2", timeout: 60000 });
 
-    // Debug: Verify if the correct post page is loaded
-    const currentUrl = await page.url();
-    const cleanPostUrl = new URL(postUrl);
-    cleanPostUrl.search = "";
+      console.log("Checking logged-in user...");
+      const loggedInUser = await getLoggedInUser(page);
+      console.log(`User logged in: ${loggedInUser} (Expected: ${account.username})`);
 
-    const cleanCurrentUrl = new URL(currentUrl);
-    cleanCurrentUrl.search = "";
+      if (!loggedInUser) {
+          console.error(`❌ Login failed for ${account.username}. Check cookies.`);
+          await browser.close();
+          return;
+      }
 
-    if (cleanCurrentUrl.href !== cleanPostUrl.href) {
-      console.error(
-        `Wrong page loaded for ${account.username}. Expected: ${cleanPostUrl.href}, Found: ${cleanCurrentUrl.href}`
-      );
+      console.log("Scrolling to ensure post is visible...");
+      await page.evaluate(() => window.scrollBy(0, 500));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const commentBoxSelector = "div[contenteditable='true']";
+      await page.waitForSelector(commentBoxSelector, { timeout: 60000 });
+
+      console.log("Typing comment...");
+      await page.click(commentBoxSelector);
+      await page.type(commentBoxSelector, commentText, { delay: 100 });
+
+      await page.keyboard.press("Enter");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      console.log(`✅ Comment posted successfully for ${account.username}`);
       await browser.close();
-      return;
-    }
-
-    console.log("Page loaded. Scrolling to ensure post is visible...");
-    await page.evaluate(() => window.scrollBy(0, 500));
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const commentBoxSelector = "div[contenteditable='true']";
-    await page.waitForSelector(commentBoxSelector, { timeout: 60000 });
-
-    console.log("Comment box found. Typing comment...");
-    await page.click(commentBoxSelector);
-    await page.type(commentBoxSelector, commentText, { delay: 100 });
-
-    await page.keyboard.press("Enter");
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    console.log(`Comment posted successfully for ${account.username}`);
-    await browser.close();
   } catch (err) {
-    console.error(
-      `Error posting comment for ${account.username}:`,
-      err.message
-    );
+      console.error(`❌ Error posting comment for ${account.username}:`, err.message);
   }
 }
+
 
 
 async function startJob(job) {
