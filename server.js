@@ -78,19 +78,21 @@ async function postCommentOnBehalfOfAccount(account, postUrl, commentText) {
       console.log(`Posting comment for ${account.username}`);
 
       const browser = await puppeteer.launch({
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        timeout: 60000  // ✅ Increase timeout to 60 seconds
-    });
-    
-      const page = await browser.newPage();
-
-      console.log("Setting cookies...");
+        headless: false, // Change to true once working
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      });
+      
+      const context = await browser.createIncognitoBrowserContext();
+      const page = await context.newPage();
       await page.setCookie(...account.fbCookies);
+      
 
       // ✅ Debug: Verify if cookies are actually applied
-      const cookies = await page.cookies();
-      console.log("Applied Cookies for user", account.username, cookies);
+      console.log(`Loading cookies for ${account.username}:`, account.fbCookies);
+await page.setCookie(...account.fbCookies);
+const cookies = await page.cookies();
+console.log(`✅ Cookies actually set for ${account.username}:`, cookies);
+
 
       if (!cookies.length) {
           console.error("❌ No cookies were applied! Check your cookie format.");
@@ -99,9 +101,12 @@ async function postCommentOnBehalfOfAccount(account, postUrl, commentText) {
       }
 
       console.log("Navigating to:", postUrl);
-      await page.goto(postUrl, { waitUntil: "networkidle2", timeout: 60000 });
-
-      console.log("Checking logged-in user...");
+      await page.goto("https://www.facebook.com/", { waitUntil: "domcontentloaded", timeout: 30000 });
+      console.log("✅ Successfully loaded Facebook homepage!");
+      
+      await page.goto(postUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+      console.log("✅ Successfully loaded post page!");
+      
       const loggedInUser = await getLoggedInUser(page);
       console.log(`User logged in: ${loggedInUser} (Expected: ${account.username})`);
 
